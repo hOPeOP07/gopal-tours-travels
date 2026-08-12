@@ -22,3 +22,44 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes heroCrossfade {
+  0% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+
+  4% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  14% {
+    opacity: 1;
+    transform: scale(1.015);
+  }
+
+  18% {
+    opacity: 0;
+    transform: scale(1.025);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes indicatorPulse {
+  0%,
+  4% {
+    opacity: 1;
+    width: 32px;
+  }
+
+  18%,
+  100% {
+    opacity: 0.35;
+    width: 8px;
+  }
+}
