@@ -1,6 +1,8 @@
 import DiscoverIndia from "@/components/home/DiscoverIndia";
 import Hero from "@/components/home/Hero";
 import TourShowcase from "@/components/tours/TourShowcase";
+import HotelShowcase from "@/components/hotels/HotelShowcase";
+import FlightSearch from "@/components/flights/FlightSearch";
 
 export default function Home() {
   return (
@@ -8,6 +10,8 @@ export default function Home() {
       <Hero />
       <DiscoverIndia />
       <TourShowcase />
+      <HotelShowcase />
+      <FlightSearch />
       <div id="tours" />
       <div id="hotels" />
       <div id="flights" />
