@@ -4,6 +4,7 @@ import TourShowcase from "@/components/tours/TourShowcase";
 import HotelShowcase from "@/components/hotels/HotelShowcase";
 import FlightSearch from "@/components/flights/FlightSearch";
 import CurrentOffers from "@/components/home/CurrentOffers";
+import AboutGopalTravels from "@/components/home/AboutGopalTravels";
 
 
 export default function Home() {
@@ -15,7 +16,7 @@ export default function Home() {
       <HotelShowcase />
       <FlightSearch />
       <CurrentOffers />
-      
+      <AboutGopalTravels />
       <div id="tours" />
       <div id="hotels" />
       <div id="flights" />
