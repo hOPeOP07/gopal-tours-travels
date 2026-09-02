@@ -94,23 +94,26 @@ export default function Hero() {
 
           <nav className="hidden items-center gap-10 lg:flex">
             <Link
-              href="#tours"
+              href="/tours"
               className="text-[12px] font-medium tracking-wide text-white/75 transition hover:text-white"
             >
               Tours
             </Link>
+
             <Link
-              href="#hotels"
+              href="/hotels"
               className="text-[12px] font-medium tracking-wide text-white/75 transition hover:text-white"
             >
               Hotels
             </Link>
+
             <Link
-              href="#flights"
+              href="/flights"
               className="text-[12px] font-medium tracking-wide text-white/75 transition hover:text-white"
             >
               Flights
             </Link>
+
             <Link
               href="#about"
               className="text-[12px] font-medium tracking-wide text-white/75 transition hover:text-white"
@@ -120,7 +123,7 @@ export default function Hero() {
           </nav>
 
           <Link
-            href="#enquire"
+            href="/enquiry?type=hotel"
             className="border border-white/40 bg-white/10 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-[#e0ad6d] hover:bg-[#d59a55] hover:text-[#211a16] hover:shadow-[0_12px_35px_rgba(0,0,0,0.3)] active:translate-y-0"
           >
             Enquire Now
@@ -132,6 +135,7 @@ export default function Hero() {
         <div className="max-w-4xl">
           <div className="mb-6 flex items-center gap-4">
             <span className="h-px w-10 bg-[#d8a15e]" />
+
             <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#e3b878]">
               Gopal Travels · India
             </p>
@@ -139,6 +143,7 @@ export default function Hero() {
 
           <h1 className="max-w-4xl text-[clamp(4rem,8vw,8rem)] font-medium leading-[0.86] tracking-[-0.055em] text-white">
             <span className="block">Travel</span>
+
             <span className="block font-serif italic font-normal text-[#e1b170]">
               differently.
             </span>
@@ -146,20 +151,22 @@ export default function Hero() {
 
           <div className="mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
             <Link
-              href="#tours"
+              href="/tours"
               className="group relative inline-flex items-center gap-8 bg-[#d59a55] px-7 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#211a16] shadow-[0_5px_0_#8c5e2f,0_14px_30px_rgba(0,0,0,0.28)] transition-all duration-200 hover:-translate-y-1 hover:bg-[#e2ae6e] hover:shadow-[0_7px_0_#8c5e2f,0_20px_38px_rgba(0,0,0,0.34)] active:translate-y-[3px] active:shadow-[0_2px_0_#8c5e2f,0_7px_15px_rgba(0,0,0,0.25)]"
             >
               Explore Journeys
+
               <span className="text-lg leading-none transition-transform duration-300 group-hover:translate-x-1">
                 →
               </span>
             </Link>
 
             <Link
-              href="#enquire"
+              href="/enquiry?type=hotel"
               className="group inline-flex items-center gap-3 px-4 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/85 transition hover:text-white"
             >
               Plan a Trip
+
               <span className="h-px w-7 bg-white/45 transition-all duration-300 group-hover:w-12 group-hover:bg-[#d8a15e]" />
             </Link>
           </div>
@@ -167,12 +174,12 @@ export default function Hero() {
       </div>
 
       <div className="absolute bottom-10 right-6 z-20 flex items-center gap-2 sm:right-10 lg:right-14">
-        {heroSlides.map((slide) => (
+        {heroSlides.map((slide, index) => (
           <span
             key={slide.eyebrow}
             className="h-1 w-2 rounded-full bg-white/45 animate-[indicatorPulse_70s_linear_infinite]"
             style={{
-              animationDelay: `${heroSlides.indexOf(slide) * 7}s`,
+              animationDelay: `${index * 7}s`,
             }}
           />
         ))}
@@ -183,6 +190,7 @@ export default function Hero() {
           <p className="text-[9px] uppercase tracking-[0.3em] text-white/45">
             Curated journeys across India
           </p>
+
           <p className="text-[9px] uppercase tracking-[0.3em] text-white/45">
             Discover · Experience · Remember
           </p>

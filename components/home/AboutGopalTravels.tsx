@@ -1,8 +1,12 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function AboutGopalTravels() {
   return (
-    <section className="bg-[#f4efe6] px-6 py-24 text-[#211914] sm:px-10 lg:px-14 lg:py-32">
+    <section
+      id="about"
+      className="bg-[#f4efe6] px-6 py-24 text-[#211914] sm:px-10 lg:px-14 lg:py-32"
+    >
       <div className="mx-auto grid max-w-[1440px] gap-14 lg:grid-cols-[1fr_0.85fr] lg:items-center lg:gap-20">
         <div>
           <div className="mb-6 flex items-center gap-4">
@@ -67,8 +71,8 @@ export default function AboutGopalTravels() {
             </div>
           </div>
 
-          <button
-            type="button"
+          <Link
+            href="/about"
             className="group mt-10 inline-flex items-center gap-8 border border-[#211914]/20 px-7 py-4 text-[9px] font-bold uppercase tracking-[0.22em] transition-all duration-300 hover:border-[#b8793f] hover:bg-[#d59a55] hover:text-[#211914]"
           >
             Discover Our Story
@@ -76,7 +80,7 @@ export default function AboutGopalTravels() {
             <span className="text-base transition-transform duration-300 group-hover:translate-x-1">
               →
             </span>
-          </button>
+          </Link>
         </div>
 
         <div className="relative min-h-[560px] overflow-hidden bg-[#211914]">

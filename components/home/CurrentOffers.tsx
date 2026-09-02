@@ -1,38 +1,10 @@
-"use client";
-
 import Image from "next/image";
-
-const offers = [
-  {
-    number: "01",
-    location: "KASHMIR · JAMMU & KASHMIR",
-    title: "Kashmir Valley",
-    detail: "6 DAYS · 5 NIGHTS",
-    offer: "Seasonal Escape",
-    image:
-      "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1400&q=85",
-  },
-  {
-    number: "02",
-    location: "JAIPUR · RAJASTHAN",
-    title: "Royal Rajasthan",
-    detail: "7 DAYS · 6 NIGHTS",
-    offer: "Heritage Journey",
-    image:
-      "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1400&q=85",
-  },
-  {
-    number: "03",
-    location: "KERALA · SOUTH INDIA",
-    title: "Kerala Backwaters",
-    detail: "6 DAYS · 5 NIGHTS",
-    offer: "Monsoon Special",
-    image:
-      "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1400&q=85",
-  },
-];
+import Link from "next/link";
+import { offers } from "@/data/offers";
 
 export default function CurrentOffers() {
+  const featuredOffers = offers.slice(0, 3);
+
   return (
     <section className="bg-[#211914] px-6 py-24 text-white sm:px-10 lg:px-14 lg:py-32">
       <div className="mx-auto max-w-[1440px]">
@@ -61,9 +33,9 @@ export default function CurrentOffers() {
         </div>
 
         <div className="mt-14 grid gap-5 md:grid-cols-3">
-          {offers.map((offer) => (
+          {featuredOffers.map((offer, index) => (
             <article
-              key={offer.number}
+              key={offer.slug}
               className="group relative min-h-[480px] overflow-hidden bg-[#2a211b]"
             >
               <Image
@@ -77,7 +49,7 @@ export default function CurrentOffers() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-black/5" />
 
               <div className="absolute left-5 top-5 flex h-9 w-9 items-center justify-center border border-white/25 bg-black/10 text-[9px] font-bold tracking-[0.15em] backdrop-blur-sm">
-                {offer.number}
+                {String(index + 1).padStart(2, "0")}
               </div>
 
               <div className="absolute inset-x-0 bottom-0 p-7">
@@ -90,35 +62,39 @@ export default function CurrentOffers() {
                 </h3>
 
                 <div className="mt-4 flex items-center gap-4 text-[8px] font-bold uppercase tracking-[0.2em] text-white/55">
-                  <span>{offer.detail}</span>
+                  <span>{offer.duration}</span>
+
                   <span className="h-px w-6 bg-white/30" />
-                  <span>{offer.offer}</span>
+
+                  <span>{offer.offerLabel}</span>
                 </div>
 
-                <button
-                  type="button"
+                <Link
+                  href={`/offers/${offer.slug}`}
                   className="mt-7 inline-flex items-center gap-6 border border-white/25 bg-white/10 px-5 py-3 text-[9px] font-bold uppercase tracking-[0.2em] backdrop-blur-sm transition-all duration-300 hover:border-[#d8a15e] hover:bg-[#d8a15e] hover:text-[#211914]"
                 >
                   Explore Offer
+
                   <span className="text-base transition-transform duration-300 group-hover:translate-x-1">
                     →
                   </span>
-                </button>
+                </Link>
               </div>
             </article>
           ))}
         </div>
 
         <div className="mt-10 flex justify-center">
-          <button
-            type="button"
+          <Link
+            href="/offers"
             className="group inline-flex items-center gap-8 border border-white/15 px-7 py-4 text-[9px] font-bold uppercase tracking-[0.22em] text-white/75 transition-all duration-300 hover:border-[#d8a15e] hover:bg-[#d8a15e] hover:text-[#211914]"
           >
             View All Offers
+
             <span className="text-base transition-transform duration-300 group-hover:translate-x-1">
               →
             </span>
-          </button>
+          </Link>
         </div>
       </div>
     </section>

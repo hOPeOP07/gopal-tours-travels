@@ -1,29 +1,98 @@
 "use client";
 
 import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-const enquiryTypes = [
-  "Tour Enquiry",
-  "Hotel Enquiry",
-  "Flight Enquiry",
-  "Custom Trip",
-];
+type EnquiryService = "hotel" | "tour" | "flight";
 
-export default function EnquiryForm() {
-  const [enquiryType, setEnquiryType] = useState("Tour Enquiry");
+type EnquiryFormProps = {
+  service?: EnquiryService;
+  tourName?: string;
+  tourSlug?: string;
+};
+
+export default function EnquiryForm({
+  service = "hotel",
+  tourName,
+  tourSlug,
+}: EnquiryFormProps) {
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSubmitted(true);
-  };
+  const serviceTitle =
+    service === "hotel"
+      ? "Hotel Enquiry"
+      : service === "flight"
+        ? "Flight Enquiry"
+        : "Tour Enquiry";
 
+  const formTitle =
+    service === "hotel"
+      ? "Tell us what"
+      : service === "flight"
+        ? "Tell us where"
+        : "Tell us about";
+
+  const formItalicTitle =
+    service === "hotel"
+      ? "you need."
+      : service === "flight"
+        ? "you want to fly."
+        : "your journey.";
+
+  const description =
+    service === "hotel"
+      ? "Share a few details and our travel team will find the right hotel or luxury property for your stay."
+      : service === "flight"
+        ? "Share your travel details and our team will help arrange the right flight options for your journey."
+        : "Share a few details and our travel team will help shape this journey around you.";
+
+  const submitLabel =
+    service === "hotel"
+      ? "Send Hotel Enquiry"
+      : service === "flight"
+        ? "Send Flight Enquiry"
+        : "Send Tour Enquiry";
+
+        const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+        
+          const form = e.currentTarget;
+          const formData = new FormData(form);
+        
+          try {
+            if (service === "flight") {
+              const { error } = await supabase.from("flight_enquiries").insert({
+                name: formData.get("name"),
+                phone: formData.get("phone"),
+                email: formData.get("email"),
+                from_city: formData.get("from"),
+                to_city: formData.get("to"),
+                departure_date: formData.get("departureDate"),
+                return_date: formData.get("returnDate"),
+                travellers: Number(formData.get("travellers")),
+                travel_class: formData.get("travelClass"),
+                special_requests: formData.get("specialRequests"),
+              });
+        
+              if (error) throw error;
+            }
+        
+            setSubmitted(true);
+            form.reset();
+          } catch (err: unknown) {
+            console.error(err);
+        
+            const message =
+              err instanceof Error
+                ? err.message
+                : "Failed to submit enquiry.";
+        
+            alert(message);
+          }
+        };
   if (submitted) {
     return (
-      <section
-        id="enquire"
-        className="bg-[#f4efe6] px-6 py-24 sm:px-10 lg:px-14 lg:py-32"
-      >
+      <section className="bg-[#f4efe6] px-6 py-24 sm:px-10 lg:px-14 lg:py-32">
         <div className="mx-auto max-w-[900px] text-center">
           <span className="mx-auto mb-7 flex h-14 w-14 items-center justify-center rounded-full bg-[#d59a55] text-xl text-[#211914]">
             ✓
@@ -58,10 +127,7 @@ export default function EnquiryForm() {
   }
 
   return (
-    <section
-      id="enquire"
-      className="relative overflow-hidden bg-[#f4efe6] px-6 py-24 sm:px-10 lg:px-14 lg:py-32"
-    >
+    <section className="relative overflow-hidden bg-[#f4efe6] px-6 py-24 sm:px-10 lg:px-14 lg:py-32">
       <div className="absolute -right-40 top-20 h-[400px] w-[400px] rounded-full bg-[#d59a55]/10 blur-[120px]" />
 
       <div className="relative mx-auto max-w-[1200px]">
@@ -70,32 +136,53 @@ export default function EnquiryForm() {
             <span className="h-px w-10 bg-[#b8793f]" />
 
             <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#9a6335]">
-              Let&apos;s Plan
+              {serviceTitle}
             </p>
 
             <span className="h-px w-10 bg-[#b8793f]" />
           </div>
 
-          <h2 className="text-5xl font-medium leading-[0.95] tracking-[-0.04em] text-[#211a16] sm:text-6xl lg:text-7xl">
-            Tell us where
+          <h1 className="text-5xl font-medium leading-[0.95] tracking-[-0.04em] text-[#211a16] sm:text-6xl lg:text-7xl">
+            {formTitle}
             <span className="block font-serif italic font-normal text-[#b8793f]">
-              you want to go.
+              {formItalicTitle}
             </span>
-          </h2>
+          </h1>
 
           <p className="mx-auto mt-7 max-w-xl text-sm leading-7 text-[#211a16]/60">
-            Share a few details and our travel team will help turn the idea
-            into a journey.
+            {description}
           </p>
+
+          {tourName && (
+            <div className="mx-auto mt-6 max-w-md border border-[#211914]/10 bg-white/35 px-5 py-4">
+              <p className="text-[8px] font-bold uppercase tracking-[0.22em] text-[#9a6335]">
+                Selected Tour
+              </p>
+
+              <p className="mt-2 text-lg font-medium tracking-[-0.02em] text-[#211914]">
+                {tourName}
+              </p>
+            </div>
+          )}
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="mx-auto mt-14 max-w-[1000px] border border-[#211a16]/10 bg-white/45 p-6 shadow-[0_25px_70px_rgba(65,45,32,0.08)] backdrop-blur-xl sm:p-8 lg:p-10"
+          className="mx-auto mt-14 max-w-[1000px] border border-[#211a16]/10 bg-white/45 p-6 text-[#211a16] shadow-[0_25px_70px_rgba(65,45,32,0.08)] backdrop-blur-xl sm:p-8 lg:p-10"
         >
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="mb-10 border-b border-[#211914]/10 pb-7">
+            <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#9a6335]">
+              Your Details
+            </p>
+
+            <h2 className="mt-2 text-2xl font-medium tracking-[-0.03em]">
+              How can we contact you?
+            </h2>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
             <label className="block">
-              <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211a16]/45">
+              <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
                 Your Name
               </span>
 
@@ -104,12 +191,12 @@ export default function EnquiryForm() {
                 type="text"
                 required
                 placeholder="Full name"
-                className="w-full border-b border-[#211a16]/15 bg-transparent px-0 py-3 text-sm text-[#211a16] outline-none transition placeholder:text-[#211a16]/30 focus:border-[#b8793f]"
+                className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition placeholder:text-[#211914]/40 focus:border-[#b8793f]"
               />
             </label>
 
             <label className="block">
-              <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211a16]/45">
+              <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
                 Phone Number
               </span>
 
@@ -118,12 +205,12 @@ export default function EnquiryForm() {
                 type="tel"
                 required
                 placeholder="+91"
-                className="w-full border-b border-[#211a16]/15 bg-transparent px-0 py-3 text-sm text-[#211a16] outline-none transition placeholder:text-[#211a16]/30 focus:border-[#b8793f]"
+                className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition placeholder:text-[#211914]/40 focus:border-[#b8793f]"
               />
             </label>
 
-            <label className="block">
-              <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211a16]/45">
+            <label className="block md:col-span-2">
+              <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
                 Email
               </span>
 
@@ -132,45 +219,335 @@ export default function EnquiryForm() {
                 type="email"
                 required
                 placeholder="you@example.com"
-                className="w-full border-b border-[#211a16]/15 bg-transparent px-0 py-3 text-sm text-[#211a16] outline-none transition placeholder:text-[#211a16]/30 focus:border-[#b8793f]"
+                className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition placeholder:text-[#211914]/40 focus:border-[#b8793f]"
               />
-            </label>
-
-            <label className="block">
-              <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211a16]/45">
-                Enquiry Type
-              </span>
-
-              <select
-                value={enquiryType}
-                onChange={(event) => setEnquiryType(event.target.value)}
-                className="w-full border-b border-[#211a16]/15 bg-transparent px-0 py-3 text-sm text-[#211a16] outline-none transition focus:border-[#b8793f]"
-              >
-                {enquiryTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
             </label>
           </div>
 
-          <label className="mt-8 block">
-            <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211a16]/45">
-              Tell Us More
-            </span>
+          {service === "tour" && (
+            <>
+              <div className="mb-10 mt-12 border-b border-[#211914]/10 pb-7">
+                <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#9a6335]">
+                  Journey Details
+                </p>
 
-            <textarea
-              name="message"
-              required
-              rows={6}
-              placeholder="Where would you like to go? Tell us about your dates, preferred destinations, number of travellers, hotel preferences or anything else you have in mind..."
-              className="w-full resize-none border border-[#211a16]/10 bg-white/35 p-4 text-sm leading-6 text-[#211a16] outline-none transition placeholder:text-[#211a16]/30 focus:border-[#b8793f]"
-            />
-          </label>
+                <h2 className="mt-2 text-2xl font-medium tracking-[-0.03em]">
+                  Tell us about your trip.
+                </h2>
+              </div>
 
-          <div className="mt-8 flex flex-col items-start justify-between gap-5 border-t border-[#211a16]/10 pt-7 sm:flex-row sm:items-center">
-            <p className="max-w-md text-[9px] uppercase leading-5 tracking-[0.15em] text-[#211a16]/40">
+              <div className="grid gap-6 md:grid-cols-2">
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Preferred Travel Date
+                  </span>
+
+                  <input
+                    name="travelDate"
+                    type="date"
+                    required
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Number of Travellers
+                  </span>
+
+                  <input
+                    name="travellers"
+                    type="number"
+                    min="1"
+                    defaultValue="2"
+                    required
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Adults
+                  </span>
+
+                  <input
+                    name="adults"
+                    type="number"
+                    min="1"
+                    defaultValue="2"
+                    required
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Children
+                  </span>
+
+                  <input
+                    name="children"
+                    type="number"
+                    min="0"
+                    defaultValue="0"
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block md:col-span-2">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Additional Requirements
+                  </span>
+
+                  <textarea
+                    name="requirements"
+                    rows={5}
+                    placeholder="Hotel preferences, activities, transport, dietary requirements or anything else..."
+                    className="w-full resize-none border border-[#211914]/10 bg-white/35 p-4 text-sm leading-6 outline-none transition placeholder:text-[#211914]/40 focus:border-[#b8793f]"
+                  />
+                </label>
+              </div>
+            </>
+          )}
+
+          {service === "hotel" && (
+            <>
+              <div className="mb-10 mt-12 border-b border-[#211914]/10 pb-7">
+                <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#9a6335]">
+                  Stay Details
+                </p>
+
+                <h2 className="mt-2 text-2xl font-medium tracking-[-0.03em]">
+                  Tell us about your stay.
+                </h2>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <label className="block md:col-span-2">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Destination
+                  </span>
+
+                  <input
+                    name="destination"
+                    type="text"
+                    required
+                    placeholder="Where would you like to stay?"
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition placeholder:text-[#211914]/40 focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Check-in
+                  </span>
+
+                  <input
+                    name="checkIn"
+                    type="date"
+                    required
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Check-out
+                  </span>
+
+                  <input
+                    name="checkOut"
+                    type="date"
+                    required
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Adults
+                  </span>
+
+                  <input
+                    name="adults"
+                    type="number"
+                    min="1"
+                    defaultValue="2"
+                    required
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Children
+                  </span>
+
+                  <input
+                    name="children"
+                    type="number"
+                    min="0"
+                    defaultValue="0"
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block md:col-span-2">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Total Budget for 1 Night
+                  </span>
+
+                  <input
+                    name="nightlyBudget"
+                    type="text"
+                    required
+                    placeholder="Example: ₹15,000 per night"
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition placeholder:text-[#211914]/40 focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block md:col-span-2">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Extra Requests
+                  </span>
+
+                  <textarea
+                    name="extraRequests"
+                    rows={5}
+                    placeholder="Room preferences, special occasions, meal preferences, accessibility requirements or anything else..."
+                    className="w-full resize-none border border-[#211914]/10 bg-white/35 p-4 text-sm leading-6 outline-none transition placeholder:text-[#211914]/40 focus:border-[#b8793f]"
+                  />
+                </label>
+              </div>
+            </>
+          )}
+
+          {service === "flight" && (
+            <>
+              <div className="mb-10 mt-12 border-b border-[#211914]/10 pb-7">
+                <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#9a6335]">
+                  Flight Details
+                </p>
+
+                <h2 className="mt-2 text-2xl font-medium tracking-[-0.03em]">
+                  Tell us about your flight.
+                </h2>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    From
+                  </span>
+
+                  <input
+                    name="from"
+                    type="text"
+                    required
+                    placeholder="Departure city or airport"
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition placeholder:text-[#211914]/40 focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    To
+                  </span>
+
+                  <input
+                    name="to"
+                    type="text"
+                    required
+                    placeholder="Arrival city or airport"
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition placeholder:text-[#211914]/40 focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Departure Date
+                  </span>
+
+                  <input
+                    name="departureDate"
+                    type="date"
+                    required
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Return Date
+                  </span>
+
+                  <input
+                    name="returnDate"
+                    type="date"
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Travellers
+                  </span>
+
+                  <input
+                    name="travellers"
+                    type="number"
+                    min="1"
+                    defaultValue="1"
+                    required
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Travel Class
+                  </span>
+
+                  <select
+                    name="travelClass"
+                    defaultValue="Economy"
+                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
+                  >
+                    <option>Economy</option>
+                    <option>Premium Economy</option>
+                    <option>Business</option>
+                    <option>First</option>
+                  </select>
+                </label>
+
+                <label className="block md:col-span-2">
+                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
+                    Special Requests
+                  </span>
+
+                  <textarea
+                    name="specialRequests"
+                    rows={5}
+                    placeholder="Airline preference, connecting flight preferences, assistance requirements or anything else..."
+                    className="w-full resize-none border border-[#211914]/10 bg-white/35 p-4 text-sm leading-6 outline-none transition placeholder:text-[#211914]/40 focus:border-[#b8793f]"
+                  />
+                </label>
+              </div>
+            </>
+          )}
+
+          <input type="hidden" name="service" value={service} />
+
+          {tourName && (
+            <input type="hidden" name="tourName" value={tourName} />
+          )}
+
+          {tourSlug && (
+            <input type="hidden" name="tourSlug" value={tourSlug} />
+          )}
+
+          <div className="mt-8 flex flex-col items-start justify-between gap-5 border-t border-[#211914]/10 pt-7 sm:flex-row sm:items-center">
+            <p className="max-w-md text-[9px] uppercase leading-5 tracking-[0.15em] text-[#211914]/50">
               Our team will review your enquiry and contact you directly.
             </p>
 
@@ -178,7 +555,7 @@ export default function EnquiryForm() {
               type="submit"
               className="group inline-flex items-center gap-8 bg-[#d59a55] px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#211914] shadow-[0_5px_0_#8c5e2f,0_12px_28px_rgba(65,45,32,0.18)] transition-all duration-200 hover:-translate-y-1 hover:bg-[#e2ae6e] hover:shadow-[0_7px_0_#8c5e2f,0_18px_34px_rgba(65,45,32,0.24)] active:translate-y-[3px] active:shadow-[0_2px_0_#8c5e2f,0_7px_15px_rgba(65,45,32,0.16)]"
             >
-              Send Enquiry
+              {submitLabel}
 
               <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
                 →

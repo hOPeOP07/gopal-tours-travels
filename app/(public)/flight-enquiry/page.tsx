@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { airports, type Airport } from "@/data/airports";
 import { supabase } from "@/lib/supabase";
+import { airports, type Airport } from "@/data/airports";
+
 
 type TripType = "round-trip" | "one-way";
 
@@ -42,8 +43,9 @@ function AirportField({
         type="text"
         value={value}
         onFocus={() => setIsOpen(true)}
-        onChange={(event) => {
-          onChange(event.target.value);
+        onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+        onChange={(e) => {
+          onChange(e.target.value);
           setIsOpen(true);
         }}
         placeholder={placeholder}
@@ -52,27 +54,24 @@ function AirportField({
       />
 
       {isOpen && airportOptions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-30 max-h-72 overflow-y-auto border border-white/10 bg-[#211914] shadow-[0_20px_50px_rgba(0,0,0,0.45)]">
+        <div className="absolute left-0 right-0 top-full z-30 max-h-72 overflow-y-auto border border-white/10 bg-[#211914] shadow-2xl">
           {airportOptions.map((airport) => (
             <button
               key={airport.iata_code}
               type="button"
-              onMouseDown={(event) => {
-                event.preventDefault();
-              }}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
                 onSelect(airport);
                 setIsOpen(false);
               }}
-              className="block w-full border-b border-white/5 px-5 py-3 text-left transition hover:bg-white/10"
+              className="block w-full border-b border-white/5 px-5 py-3 text-left hover:bg-white/10"
             >
               <span className="block text-sm font-medium text-white">
                 {airport.municipality || airport.name}
               </span>
 
               <span className="mt-1 block text-[9px] uppercase tracking-[0.16em] text-white/40">
-                {airport.name} · {airport.iso_country} ·{" "}
-                {airport.iata_code}
+                {airport.name} · {airport.iso_country} · {airport.iata_code}
               </span>
             </button>
           ))}
@@ -88,6 +87,8 @@ export default function FlightSearch() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [departure, setDeparture] = useState("");
+  const [returnDate, setReturnDate] = useState("");
 
   const [fromQuery, setFromQuery] = useState("");
   const [toQuery, setToQuery] = useState("");
@@ -106,33 +107,29 @@ export default function FlightSearch() {
   const [specialRequests, setSpecialRequests] = useState("");
 
   const filteredFromAirports = useMemo(() => {
-    const query = fromQuery.trim().toLowerCase();
+    const q = fromQuery.trim().toLowerCase();
 
-    if (!query) {
-      return airports.slice(0, 12);
-    }
+    if (!q) return airports.slice(0, 12);
 
     return airports
-      .filter((airport) =>
-        `${airport.name} ${airport.municipality} ${airport.iso_country} ${airport.iata_code}`
+      .filter((a) =>
+        `${a.name} ${a.municipality} ${a.iso_country} ${a.iata_code}`
           .toLowerCase()
-          .includes(query),
+          .includes(q)
       )
       .slice(0, 12);
   }, [fromQuery]);
 
   const filteredToAirports = useMemo(() => {
-    const query = toQuery.trim().toLowerCase();
+    const q = toQuery.trim().toLowerCase();
 
-    if (!query) {
-      return airports.slice(0, 12);
-    }
+    if (!q) return airports.slice(0, 12);
 
     return airports
-      .filter((airport) =>
-        `${airport.name} ${airport.municipality} ${airport.iso_country} ${airport.iata_code}`
+      .filter((a) =>
+        `${a.name} ${a.municipality} ${a.iso_country} ${a.iata_code}`
           .toLowerCase()
-          .includes(query),
+          .includes(q)
       )
       .slice(0, 12);
   }, [toQuery]);
@@ -142,68 +139,45 @@ export default function FlightSearch() {
 
   const updatePassenger = (
     type: keyof PassengerCounts,
-    direction: "increase" | "decrease",
+    direction: "increase" | "decrease"
   ) => {
-    setPassengers((current) => {
-      const minimum = type === "adults" ? 1 : 0;
-
-      const nextValue =
-        direction === "increase"
-          ? current[type] + 1
-          : Math.max(minimum, current[type] - 1);
+    setPassengers((prev) => {
+      const min = type === "adults" ? 1 : 0;
 
       return {
-        ...current,
-        [type]: nextValue,
+        ...prev,
+        [type]:
+          direction === "increase"
+            ? prev[type] + 1
+            : Math.max(min, prev[type] - 1),
       };
     });
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
-    const departure = (
-      event.currentTarget.elements.namedItem("departure") as HTMLInputElement
-    ).value;
-  
-    const returnDate = (
-      event.currentTarget.elements.namedItem("returnDate") as HTMLInputElement
-    )?.value;
-  
+
     const { error } = await supabase.from("flight_enquiries").insert({
-      full_name: name,
+      name,
       email,
       phone,
-  
       trip_type: tripType,
-  
       from_city: selectedFrom?.municipality || fromQuery,
-      from_airport: selectedFrom?.name || null,
-      from_iata: selectedFrom?.iata_code || null,
-  
       to_city: selectedTo?.municipality || toQuery,
-      to_airport: selectedTo?.name || null,
-      to_iata: selectedTo?.iata_code || null,
-  
       departure_date: departure,
       return_date: tripType === "round-trip" ? returnDate : null,
-  
       travel_class: travelClass,
-  
-      adults: passengers.adults,
-      children: passengers.children,
-      infants: passengers.infants,
-  
+      travellers: passengers.adults + passengers.children + passengers.infants,
       special_requests: specialRequests,
     });
-  
+
     if (error) {
       alert(error.message);
       return;
     }
-  
+
     alert("Flight enquiry submitted successfully!");
-  
+
     setName("");
     setEmail("");
     setPhone("");
@@ -211,18 +185,19 @@ export default function FlightSearch() {
     setToQuery("");
     setSelectedFrom(null);
     setSelectedTo(null);
-    setSpecialRequests("");
+    setTripType("round-trip");
+    setDeparture("");
+    setReturnDate("");
     setTravelClass("Economy");
+    setSpecialRequests("");
     setPassengers({ adults: 1, children: 0, infants: 0 });
-  
-    event.currentTarget.reset();
   };
 
+    
+  
+
   return (
-    <section
-      id="flight-search"
-      className="relative overflow-hidden bg-[#211914] px-6 py-24 text-white sm:px-10 lg:px-14 lg:py-32"
-    >
+    <section className="relative overflow-hidden bg-[#211914] px-6 py-24 text-white sm:px-10 lg:px-14 lg:py-32">
       <div className="absolute inset-0 opacity-20">
         <div className="absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full bg-[#d59a55] blur-[140px]" />
         <div className="absolute -bottom-40 -left-40 h-[450px] w-[450px] rounded-full bg-[#8c5e2f] blur-[130px]" />
@@ -233,7 +208,6 @@ export default function FlightSearch() {
           <div>
             <div className="mb-6 flex items-center gap-4">
               <span className="h-px w-10 bg-[#d8a15e]" />
-
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#e3b878]">
                 Flight Enquiry
               </p>
@@ -256,50 +230,50 @@ export default function FlightSearch() {
         <form
           onSubmit={handleSubmit}
           className="mt-14 border border-white/10 bg-white/[0.045] p-5 shadow-[0_25px_70px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-7"
-          
-        ><div className="mb-6 grid gap-px bg-white/10 md:grid-cols-3">
-        <label className="bg-[#211914] p-5">
-          <span className="mb-3 block text-[8px] font-bold uppercase tracking-[0.25em] text-white/35">
-            Full Name
-          </span>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your name"
-            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
-          />
-        </label>
-      
-        <label className="bg-[#211914] p-5">
-          <span className="mb-3 block text-[8px] font-bold uppercase tracking-[0.25em] text-white/35">
-            Email
-          </span>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@email.com"
-            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
-          />
-        </label>
-      
-        <label className="bg-[#211914] p-5">
-          <span className="mb-3 block text-[8px] font-bold uppercase tracking-[0.25em] text-white/35">
-            Phone
-          </span>
-          <input
-            type="tel"
-            required
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+91 9876543210"
-            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
-          />
-        </label>
-      </div>
+        >
+          <div className="mb-6 grid gap-px bg-white/10 md:grid-cols-3">
+            <label className="bg-[#211914] p-5">
+              <span className="mb-3 block text-[8px] font-bold uppercase tracking-[0.25em] text-white/35">
+                Full Name
+              </span>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+              />
+            </label>
+
+            <label className="bg-[#211914] p-5">
+              <span className="mb-3 block text-[8px] font-bold uppercase tracking-[0.25em] text-white/35">
+                Email
+              </span>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@email.com"
+                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+              />
+            </label>
+
+            <label className="bg-[#211914] p-5">
+              <span className="mb-3 block text-[8px] font-bold uppercase tracking-[0.25em] text-white/35">
+                Phone
+              </span>
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+91 9876543210"
+                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
+              />
+            </label>
+          </div>
           <div className="flex flex-wrap items-center justify-between gap-5 border-b border-white/10 pb-5">
             <div className="flex items-center gap-2">
               <button
@@ -345,7 +319,7 @@ export default function FlightSearch() {
               onSelect={(airport) => {
                 setSelectedFrom(airport);
                 setFromQuery(
-                  `${airport.municipality} · ${airport.name} (${airport.iata_code})`,
+                  `${airport.municipality} · ${airport.name} (${airport.iata_code})`
                 );
               }}
             />
@@ -362,7 +336,7 @@ export default function FlightSearch() {
               onSelect={(airport) => {
                 setSelectedTo(airport);
                 setToQuery(
-                  `${airport.municipality} · ${airport.name} (${airport.iata_code})`,
+                  `${airport.municipality} · ${airport.name} (${airport.iata_code})`
                 );
               }}
             />
@@ -373,12 +347,13 @@ export default function FlightSearch() {
               <span className="mb-3 block text-[8px] font-bold uppercase tracking-[0.25em] text-white/35">
                 Departure
               </span>
-
               <input
                 name="departure"
                 type="date"
                 required
-                className="w-full bg-transparent text-sm font-medium text-white outline-none [color-scheme:dark]"
+                value={departure}
+                onChange={(e) => setDeparture(e.target.value)}
+                className="w-full bg-transparent text-sm text-white outline-none [color-scheme:dark]"
               />
             </label>
 
@@ -386,13 +361,14 @@ export default function FlightSearch() {
               <span className="mb-3 block text-[8px] font-bold uppercase tracking-[0.25em] text-white/35">
                 Return
               </span>
-
               <input
                 name="returnDate"
                 type="date"
                 disabled={tripType === "one-way"}
                 required={tripType === "round-trip"}
-                className="w-full bg-transparent text-sm font-medium text-white outline-none disabled:cursor-not-allowed disabled:opacity-25 [color-scheme:dark]"
+                value={returnDate}
+                onChange={(e) => setReturnDate(e.target.value)}
+                className="w-full bg-transparent text-sm text-white outline-none disabled:opacity-25 [color-scheme:dark]"
               />
             </label>
           </div>
@@ -475,7 +451,7 @@ export default function FlightSearch() {
                           passengers[passenger.type] <=
                           (passenger.type === "adults" ? 1 : 0)
                         }
-                        className="flex h-8 w-8 items-center justify-center border border-white/15 text-sm transition hover:border-[#d59a55] hover:bg-[#d59a55] hover:text-[#211914] disabled:cursor-not-allowed disabled:opacity-25"
+                        className="flex h-8 w-8 items-center justify-center border border-white/15 text-sm hover:border-[#d59a55] hover:bg-[#d59a55] hover:text-[#211914] disabled:opacity-25"
                       >
                         −
                       </button>
@@ -489,7 +465,7 @@ export default function FlightSearch() {
                         onClick={() =>
                           updatePassenger(passenger.type, "increase")
                         }
-                        className="flex h-8 w-8 items-center justify-center border border-white/15 text-sm transition hover:border-[#d59a55] hover:bg-[#d59a55] hover:text-[#211914]"
+                        className="flex h-8 w-8 items-center justify-center border border-white/15 text-sm hover:border-[#d59a55] hover:bg-[#d59a55] hover:text-[#211914]"
                       >
                         +
                       </button>
@@ -507,29 +483,24 @@ export default function FlightSearch() {
 
             <textarea
               value={specialRequests}
-              onChange={(event) => setSpecialRequests(event.target.value)}
+              onChange={(e) => setSpecialRequests(e.target.value)}
               rows={4}
-              placeholder="Airline preference, wheelchair assistance, meal requirements, connecting flight preferences or anything else we should know..."
+              placeholder="Airline preference, wheelchair assistance, meal requirements, connecting flights or anything else..."
               className="w-full resize-none bg-transparent text-sm leading-6 text-white outline-none placeholder:text-white/25"
             />
           </label>
 
           <div className="mt-6 flex flex-col items-start justify-between gap-5 border-t border-white/10 pt-6 sm:flex-row sm:items-center">
-            <div className="max-w-xl">
-              <p className="text-[9px] uppercase tracking-[0.18em] text-white/35">
-                Your enquiry will be reviewed by our travel team.
-              </p>
-            </div>
+            <p className="text-[9px] uppercase tracking-[0.18em] text-white/35">
+              Your enquiry will be reviewed by our travel team.
+            </p>
 
             <button
               type="submit"
-              className="group inline-flex items-center justify-center gap-8 bg-[#d59a55] px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#211914] shadow-[0_5px_0_#8c5e2f,0_12px_28px_rgba(0,0,0,0.25)] transition-all duration-200 hover:-translate-y-1 hover:bg-[#e2ae6e] hover:shadow-[0_7px_0_#8c5e2f,0_18px_34px_rgba(0,0,0,0.3)] active:translate-y-[3px] active:shadow-[0_2px_0_#8c5e2f,0_7px_15px_rgba(0,0,0,0.2)]"
+              className="inline-flex items-center gap-8 bg-[#d59a55] px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#211914] hover:bg-[#e2ae6e]"
             >
               Send Flight Enquiry
-
-              <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
-                →
-              </span>
+              <span className="text-lg">→</span>
             </button>
           </div>
         </form>
