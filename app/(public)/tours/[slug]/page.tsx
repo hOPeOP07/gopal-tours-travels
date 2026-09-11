@@ -304,7 +304,7 @@ function GalleryCard({
 
       <div className="absolute bottom-0 left-0 right-0 p-6">
         <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#d8a15e]">
-          {image.location}
+          {image.caption}
         </p>
 
         <h3 className="mt-2 text-xl font-medium">{image.caption}</h3>
