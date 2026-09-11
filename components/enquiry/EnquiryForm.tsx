@@ -58,9 +58,41 @@ export default function EnquiryForm({
         
           const form = e.currentTarget;
           const formData = new FormData(form);
+
+          console.log("Extra Requests =", formData.get("extraRequests"));
         
           try {
-            if (service === "flight") {
+            if (service === "hotel") {
+              const { error } = await supabase.from("hotel_enquiries").insert({
+                name: formData.get("name"),
+                phone: formData.get("phone"),
+                email: formData.get("email"),
+                destination: formData.get("destination"),
+                check_in: formData.get("checkIn"),
+                check_out: formData.get("checkOut"),
+                adults: Number(formData.get("adults")),
+                children: Number(formData.get("children")),
+                budget: formData.get("budget"),
+                extra_requests: formData.get("extraRequests")?.toString() || null,
+              });
+        
+              if (error) throw error;
+            } else if (service === "tour") {
+              const { error } = await supabase.from("tour_enquiries").insert({
+                name: formData.get("name"),
+                phone: formData.get("phone"),
+                email: formData.get("email"),
+                tour_name: tourName,
+                tour_slug: tourSlug,
+                travel_date: formData.get("travelDate"),
+                travellers: Number(formData.get("travellers")),
+                adults: Number(formData.get("adults")),
+                children: Number(formData.get("children")),
+                requirements: formData.get("requirements"),
+              });
+        
+              if (error) throw error;
+            } else {
               const { error } = await supabase.from("flight_enquiries").insert({
                 name: formData.get("name"),
                 phone: formData.get("phone"),
@@ -79,15 +111,12 @@ export default function EnquiryForm({
         
             setSubmitted(true);
             form.reset();
-          } catch (err: unknown) {
-            console.error(err);
+            setSubmitted(true);
+            form.reset();
         
-            const message =
-              err instanceof Error
-                ? err.message
-                : "Failed to submit enquiry.";
-        
-            alert(message);
+          } catch (error) {
+            console.log("SUPABASE ERROR:", error);
+            alert(JSON.stringify(error, null, 2));
           }
         };
   if (submitted) {
@@ -250,20 +279,6 @@ export default function EnquiryForm({
                   />
                 </label>
 
-                <label className="block">
-                  <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
-                    Number of Travellers
-                  </span>
-
-                  <input
-                    name="travellers"
-                    type="number"
-                    min="1"
-                    defaultValue="2"
-                    required
-                    className="w-full border-b border-[#211914]/15 bg-transparent px-0 py-3 text-sm outline-none transition focus:border-[#b8793f]"
-                  />
-                </label>
 
                 <label className="block">
                   <span className="mb-3 block text-[9px] font-bold uppercase tracking-[0.22em] text-[#211914]/60">
@@ -398,7 +413,7 @@ export default function EnquiryForm({
                   </span>
 
                   <input
-                    name="nightlyBudget"
+                    name="budget"
                     type="text"
                     required
                     placeholder="Example: ₹15,000 per night"

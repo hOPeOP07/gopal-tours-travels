@@ -1,9 +1,39 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { getFeaturedTours } from "@/data/tours";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+
+type Tour = {
+  id: string;
+  title: string;
+  slug: string;
+  location: string;
+  duration: string;
+  price: string;
+  hero_image: string;
+  featured: boolean;
+};
 
 export default function TourShowcase() {
-  const tours = getFeaturedTours().slice(0, 4);
+  const [tours, setTours] = useState<Tour[]>([]);
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      const { data } = await supabase
+        .from("tours")
+        .select("*")
+        .eq("featured", true)
+        .limit(4);
+
+      if (data) setTours(data as Tour[]);
+    };
+
+    void fetchTours();
+  }, []);
+
+  if (tours.length === 0) return null;
 
   return (
     <section className="bg-[#211914] px-6 py-24 text-white sm:px-10 lg:px-14 lg:py-32">
@@ -12,7 +42,6 @@ export default function TourShowcase() {
           <div>
             <div className="mb-6 flex items-center gap-4">
               <span className="h-px w-10 bg-[#d8a15e]" />
-
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#e3b878]">
                 Curated Tours
               </p>
@@ -27,7 +56,7 @@ export default function TourShowcase() {
           </div>
 
           <p className="max-w-md text-sm leading-6 text-white/55">
-            Handpicked journeys across India&apos;s mountains, palaces,
+            Handpicked journeys across India's mountains, palaces,
             coastlines and cultural heartlands.
           </p>
         </div>
@@ -40,10 +69,10 @@ export default function TourShowcase() {
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-[#30251e]">
                 <Image
-                  src={tour.heroImage}
+                  src={tour.hero_image}
                   alt={tour.title}
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width:768px) 100vw, 50vw"
                   className="object-cover transition duration-1000 ease-out group-hover:scale-105"
                 />
 
@@ -87,7 +116,6 @@ export default function TourShowcase() {
             className="group inline-flex items-center gap-8 border border-white/20 bg-white/5 px-7 py-4 text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_6px_0_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-200 hover:-translate-y-1 hover:border-[#d8a15e] hover:bg-[#d8a15e] hover:text-[#211914] hover:shadow-[0_8px_0_rgba(124,79,38,0.8)] active:translate-y-[2px] active:shadow-[0_2px_0_rgba(0,0,0,0.35)]"
           >
             View All Tours
-
             <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
               →
             </span>

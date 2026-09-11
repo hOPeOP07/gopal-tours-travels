@@ -1,97 +1,100 @@
-import Image from "next/image";
 import Link from "next/link";
-import { offers } from "@/data/offers";
+
+const offers = [
+  {
+    title: "Kashmir Escape",
+    discount: "25% OFF",
+    description: "7 Days · Houseboat + Gulmarg + Pahalgam",
+    color: "from-[#6fa3d8] to-[#27496d]",
+  },
+  {
+    title: "Goa Beach Holiday",
+    discount: "20% OFF",
+    description: "Luxury beach stay with sightseeing included",
+    color: "from-[#e7a34b] to-[#9a5a16]",
+  },
+  {
+    title: "Rajasthan Royal Tour",
+    discount: "30% OFF",
+    description: "Jaipur · Jodhpur · Udaipur heritage journey",
+    color: "from-[#b86b52] to-[#5b2d22]",
+  },
+];
 
 export default function CurrentOffers() {
-  const featuredOffers = offers.slice(0, 3);
-
   return (
-    <section className="bg-[#211914] px-6 py-24 text-white sm:px-10 lg:px-14 lg:py-32">
+    <section className="bg-[#120e0b] px-6 py-24 text-white sm:px-10 lg:px-14 lg:py-32">
       <div className="mx-auto max-w-[1440px]">
-        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+        <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>
             <div className="mb-6 flex items-center gap-4">
               <span className="h-px w-10 bg-[#d8a15e]" />
-
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#e3b878]">
-                Current Offers
+                Limited Time Offers
               </p>
             </div>
 
-            <h2 className="max-w-2xl text-5xl font-medium leading-[0.95] tracking-[-0.04em] sm:text-6xl lg:text-7xl">
-              Journeys worth
+            <h2 className="max-w-3xl text-5xl font-medium leading-[0.95] tracking-[-0.04em] sm:text-6xl lg:text-7xl">
+              Travel more.
               <span className="block font-serif italic font-normal text-[#d8a15e]">
-                taking now.
+                Spend less.
               </span>
             </h2>
           </div>
 
-          <p className="max-w-md text-sm leading-6 text-white/55 lg:ml-auto">
-            Discover seasonal journeys and specially curated escapes from
-            across India, available for a limited time.
+          <p className="max-w-md text-sm leading-6 text-white/55">
+            Exclusive seasonal deals curated by Gopal Travels for unforgettable
+            holidays across India.
           </p>
         </div>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
-          {featuredOffers.map((offer, index) => (
+        <div className="mt-16 grid gap-5 lg:grid-cols-3">
+          {offers.map((offer) => (
             <article
-              key={offer.slug}
-              className="group relative min-h-[480px] overflow-hidden bg-[#2a211b]"
+              key={offer.title}
+              className={`group relative overflow-hidden bg-gradient-to-br ${offer.color} p-[1px]`}
             >
-              <Image
-                src={offer.image}
-                alt={offer.title}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              <div className="h-full bg-black/20 p-8 backdrop-blur-sm transition duration-300 group-hover:bg-black/10">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-white/70">
+                      Holiday Deal
+                    </p>
+                    <h3 className="mt-3 text-3xl font-medium leading-tight">
+                      {offer.title}
+                    </h3>
+                  </div>
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-black/5" />
-
-              <div className="absolute left-5 top-5 flex h-9 w-9 items-center justify-center border border-white/25 bg-black/10 text-[9px] font-bold tracking-[0.15em] backdrop-blur-sm">
-                {String(index + 1).padStart(2, "0")}
-              </div>
-
-              <div className="absolute inset-x-0 bottom-0 p-7">
-                <p className="mb-3 text-[8px] font-bold uppercase tracking-[0.25em] text-[#e3b878]">
-                  {offer.location}
-                </p>
-
-                <h3 className="text-3xl font-medium tracking-[-0.03em] sm:text-4xl">
-                  {offer.title}
-                </h3>
-
-                <div className="mt-4 flex items-center gap-4 text-[8px] font-bold uppercase tracking-[0.2em] text-white/55">
-                  <span>{offer.duration}</span>
-
-                  <span className="h-px w-6 bg-white/30" />
-
-                  <span>{offer.offerLabel}</span>
+                  <span className="rounded-full border border-white/30 px-3 py-1 text-xs font-bold backdrop-blur">
+                    {offer.discount}
+                  </span>
                 </div>
 
-                <Link
-                  href={`/offers/${offer.slug}`}
-                  className="mt-7 inline-flex items-center gap-6 border border-white/25 bg-white/10 px-5 py-3 text-[9px] font-bold uppercase tracking-[0.2em] backdrop-blur-sm transition-all duration-300 hover:border-[#d8a15e] hover:bg-[#d8a15e] hover:text-[#211914]"
-                >
-                  Explore Offer
+                <p className="mt-10 text-sm leading-6 text-white/80">
+                  {offer.description}
+                </p>
 
-                  <span className="text-base transition-transform duration-300 group-hover:translate-x-1">
+                <div className="mt-10 flex items-center justify-between">
+                  <span className="text-[9px] uppercase tracking-[0.22em] text-white/55">
+                    Valid for limited bookings
+                  </span>
+
+                  <span className="text-xl transition-transform duration-300 group-hover:translate-x-1">
                     →
                   </span>
-                </Link>
+                </div>
               </div>
             </article>
           ))}
         </div>
 
-        <div className="mt-10 flex justify-center">
+        <div className="mt-12 flex justify-center">
           <Link
             href="/offers"
-            className="group inline-flex items-center gap-8 border border-white/15 px-7 py-4 text-[9px] font-bold uppercase tracking-[0.22em] text-white/75 transition-all duration-300 hover:border-[#d8a15e] hover:bg-[#d8a15e] hover:text-[#211914]"
+            className="group inline-flex items-center gap-8 bg-[#d59a55] px-7 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#211914] shadow-[0_5px_0_#8c5e2f] transition-all duration-200 hover:-translate-y-1 hover:bg-[#e2ae6e] hover:shadow-[0_7px_0_#8c5e2f] active:translate-y-[2px] active:shadow-[0_2px_0_#8c5e2f]"
           >
             View All Offers
-
-            <span className="text-base transition-transform duration-300 group-hover:translate-x-1">
+            <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
               →
             </span>
           </Link>

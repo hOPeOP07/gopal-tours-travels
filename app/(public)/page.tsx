@@ -11,11 +11,8 @@ export default function Home() {
   return (
     <main>
       <Hero />
-
       <DiscoverIndia />
-
       <TourShowcase />
-
       <HotelShowcase />
 
       {/* Flights */}
@@ -25,7 +22,6 @@ export default function Home() {
             <div>
               <div className="mb-6 flex items-center gap-4">
                 <span className="h-px w-10 bg-[#d8a15e]" />
-
                 <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#e3b878]">
                   Flights
                 </p>
@@ -40,9 +36,9 @@ export default function Home() {
             </div>
 
             <p className="max-w-md text-sm leading-6 text-white/55 lg:ml-auto">
-              From domestic journeys across India to international travel,
-              Gopal Travels helps arrange flights around your plans,
-              preferences and budget.
+              From domestic journeys across India to international travel, Gopal
+              Travels helps arrange flights around your plans, preferences and
+              budget.
             </p>
           </div>
 
@@ -55,7 +51,6 @@ export default function Home() {
                     'url("https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1800&q=90")',
                 }}
               />
-
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
               <div className="absolute inset-x-0 bottom-0 p-8 sm:p-10">
@@ -80,17 +75,16 @@ export default function Home() {
                 </h3>
 
                 <p className="mt-5 text-sm leading-7 text-white/55">
-                  Share your travel details with our team and we&apos;ll
-                  review the available flight options for your journey.
+                  Share your travel details with our team and we&apos;ll review
+                  the available flight options for your journey.
                 </p>
               </div>
 
               <Link
                 href="/flights"
-                className="group mt-10 inline-flex w-fit items-center gap-8 bg-[#d59a55] px-7 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#211914] shadow-[0_5px_0_#8c5e2f] transition-all duration-200 hover:-translate-y-1 hover:bg-[#e2ae6e] hover:shadow-[0_7px_0_#8c5e2f] active:translate-y-[2px] active:shadow-[0_2px_0_#8c5e2f]"
+                className="group mt-10 inline-flex w-fit items-center gap-8 bg-[#d59a55] px-7 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#211914] shadow-[0_5px_0_#8c5e2f] transition-all duration-200 hover:-translate-y-1 hover:bg-[#e2ae6e] hover:shadow-[0_7px_0_#8c5e2f]"
               >
                 Explore Flights
-
                 <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
                   →
                 </span>
@@ -101,6 +95,48 @@ export default function Home() {
       </section>
 
       <CurrentOffers />
+
+      {/* Hotel Enquiry */}
+      <section className="bg-[#f4efe6] px-6 py-24 sm:px-10 lg:px-14 lg:py-32">
+        <div className="mx-auto max-w-[1440px] overflow-hidden bg-[#211914]">
+          <div className="grid lg:grid-cols-2">
+            <div
+              className="min-h-[420px] bg-cover bg-center"
+              style={{
+                backgroundImage:
+                  'url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=90")',
+              }}
+            />
+
+            <div className="flex flex-col justify-center p-10 text-white sm:p-14">
+              <div className="mb-6 flex items-center gap-4">
+                <span className="h-px w-10 bg-[#d8a15e]" />
+                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#e3b878]">
+                  Hotel Enquiry
+                </p>
+              </div>
+
+              <h2 className="text-4xl font-medium leading-tight sm:text-5xl">
+                Need the perfect stay?
+              </h2>
+
+              <p className="mt-6 text-sm leading-7 text-white/60">
+                Tell us your destination, check-in dates and budget. Our travel
+                experts will personally help you find the best hotel options
+                across India.
+              </p>
+
+              <Link
+                href="/enquiry?type=hotel"
+                className="mt-10 inline-flex w-fit items-center gap-6 bg-[#d59a55] px-7 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-[#211914] transition hover:bg-[#e2ae6e]"
+              >
+                Enquire Now
+                <span className="text-lg">→</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <AboutGopalTravels />
     </main>

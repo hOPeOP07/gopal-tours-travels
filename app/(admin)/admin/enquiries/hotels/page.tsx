@@ -12,14 +12,13 @@ export default async function HotelEnquiriesPage() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#d8a15e]">
           Admin Panel
         </p>
-
         <h2 className="mt-3 text-5xl font-medium tracking-[-0.04em]">
           Hotel Enquiries
         </h2>
       </div>
 
-      <div className="overflow-hidden border border-white/10">
-        <table className="w-full">
+      <div className="overflow-x-auto border border-white/10">
+        <table className="w-full min-w-[1200px]">
           <thead className="bg-white/5">
             <tr className="text-left text-[10px] uppercase tracking-[0.18em] text-white/45">
               <th className="px-5 py-4">Customer</th>
@@ -27,6 +26,7 @@ export default async function HotelEnquiriesPage() {
               <th className="px-5 py-4">Destination</th>
               <th className="px-5 py-4">Check In</th>
               <th className="px-5 py-4">Guests</th>
+              <th className="px-5 py-4">Extra Requests</th>
               <th className="px-5 py-4">Received</th>
             </tr>
           </thead>
@@ -45,14 +45,16 @@ export default async function HotelEnquiriesPage() {
 
                   <td className="px-5 py-5">{item.phone}</td>
 
-                  <td className="px-5 py-5">
-                    <p>{item.destination}</p>
-                  </td>
+                  <td className="px-5 py-5">{item.destination}</td>
 
                   <td className="px-5 py-5">{item.check_in}</td>
 
                   <td className="px-5 py-5">
                     {item.adults}A / {item.children}C
+                  </td>
+
+                  <td className="px-5 py-5 max-w-[260px] whitespace-pre-wrap text-sm text-white/70">
+                    {item.extra_requests || "—"}
                   </td>
 
                   <td className="px-5 py-5">
@@ -63,7 +65,7 @@ export default async function HotelEnquiriesPage() {
             ) : (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="py-16 text-center text-white/40"
                 >
                   No hotel enquiries yet.

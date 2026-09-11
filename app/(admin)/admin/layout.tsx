@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard" },
   { name: "Tours", href: "/admin/tours" },
+  { name: "Hotels", href: "/admin/hotels" },
   { name: "Exclusive Offers", href: "/admin/offers" },
   { name: "Tour Enquiries", href: "/admin/enquiries/tours" },
   { name: "Hotel Enquiries", href: "/admin/enquiries/hotels" },
@@ -64,7 +65,7 @@ export default function AdminLayout({
 
   const logout = () => {
     localStorage.removeItem("gt-admin-auth");
-    router.push("/admin");
+    window.location.href = "/admin";
   };
 
   return (

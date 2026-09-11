@@ -23,6 +23,10 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Logo upload states
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState("");
+
   const [form, setForm] = useState<Settings>({
     company_name: "",
     tagline: "",
@@ -38,7 +42,6 @@ export default function SettingsPage() {
     youtube: "",
   });
 
-  // ✅ React 19 compatible
   useEffect(() => {
     let mounted = true;
 
@@ -66,6 +69,8 @@ export default function SettingsPage() {
           facebook: data.facebook ?? "",
           youtube: data.youtube ?? "",
         });
+
+        setLogoPreview(data.logo_url ?? "");
       }
 
       setLoading(false);
@@ -87,8 +92,45 @@ export default function SettingsPage() {
     }));
   };
 
+  // Upload logo to Supabase Storage
+  const uploadLogo = async () => {
+    if (!logoFile) return;
+
+    setSaving(true);
+
+    const extension = logoFile.name.split(".").pop();
+    const fileName = `logo-${Date.now()}.${extension}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("branding")
+      .upload(fileName, logoFile, {
+        upsert: true,
+      });
+
+    if (uploadError) {
+      alert(uploadError.message);
+      setSaving(false);
+      return;
+    }
+
+    const { data } = supabase.storage
+      .from("branding")
+      .getPublicUrl(fileName);
+
+    setForm((prev) => ({
+      ...prev,
+      logo_url: data.publicUrl,
+    }));
+
+    setLogoPreview(data.publicUrl);
+
+    alert("Logo uploaded successfully!");
+    setSaving(false);
+  };
+
   const saveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setSaving(true);
 
     const { error } = await supabase
@@ -155,14 +197,67 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div className="mt-5 grid gap-5 md:grid-cols-2">
-            <Input
-              label="Logo URL"
-              name="logo_url"
-              value={form.logo_url}
-              onChange={handleChange}
-            />
+          {/* LOGO UPLOAD */}
+          <div className="mt-6">
+            <label className="mb-3 block text-[10px] uppercase tracking-[0.2em] text-white/45">
+              Website Logo
+            </label>
 
+            <div className="flex flex-col gap-5 rounded-lg border border-white/10 bg-[#120d0a] p-5 md:flex-row md:items-center">
+              <div className="flex h-28 w-28 items-center justify-center rounded-lg border border-white/10 bg-[#1b1511]">
+                {logoPreview ? (
+                  <Image
+                    src={logoPreview}
+                    alt="Logo Preview"
+                    width={90}
+                    height={90}
+                    className="max-h-[90px] max-w-[90px] object-contain"
+                  />
+                ) : (
+                  <span className="text-xs text-white/30">No Logo</span>
+                )}
+              </div>
+
+              <div className="flex-1">
+                <p className="text-sm text-white">
+                  Upload PNG, JPG or JPEG
+                </p>
+                <p className="mt-1 text-xs text-white/45">
+                  High-resolution images supported. Recommended: 500×500px or above.
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <label className="cursor-pointer bg-[#d59a55] px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-[#211914] hover:bg-[#e3b878]">
+                    Choose Image
+                    <input
+                      type="file"
+                      accept=".png,.jpg,.jpeg"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        setLogoFile(file);
+                        setLogoPreview(URL.createObjectURL(file));
+                      }}
+                    />
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={uploadLogo}
+                    disabled={!logoFile || saving}
+                    className="border border-[#d59a55] px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] text-[#d59a55] hover:bg-[#d59a55] hover:text-[#211914] disabled:opacity-40"
+                  >
+                    {saving ? "Uploading..." : "Upload Logo"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Favicon */}
+          <div className="mt-6">
             <Input
               label="Favicon URL"
               name="favicon_url"
@@ -170,24 +265,6 @@ export default function SettingsPage() {
               onChange={handleChange}
             />
           </div>
-
-          {form.logo_url && (
-            <div className="mt-6">
-              <p className="mb-2 text-xs uppercase tracking-[0.18em] text-white/40">
-                Logo Preview
-              </p>
-
-              <div className="flex h-24 w-24 items-center justify-center rounded border border-white/10 bg-[#120d0a] p-3">
-                <Image
-                  src={form.logo_url}
-                  alt="Logo Preview"
-                  width={80}
-                  height={80}
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Contact */}
@@ -271,6 +348,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Save */}
         <div className="border-t border-white/10 pt-6">
           <button
             type="submit"

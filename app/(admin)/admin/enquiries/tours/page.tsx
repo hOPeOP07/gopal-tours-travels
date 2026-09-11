@@ -28,6 +28,7 @@ export default async function TourEnquiriesPage() {
                 <th className="px-5 py-4">Tour</th>
                 <th className="px-5 py-4">Travel Date</th>
                 <th className="px-5 py-4">Travellers</th>
+                <th className="px-5 py-4">Requirements</th>
                 <th className="px-5 py-4">Received</th>
               </tr>
             </thead>
@@ -59,6 +60,12 @@ export default async function TourEnquiriesPage() {
 
                     <td className="px-5 py-5">
                       {e.travellers} ({e.adults}A / {e.children}C)
+                    </td>
+
+                    <td className="px-5 py-5 max-w-[260px]">
+                     <p className="text-sm text-white/80 whitespace-pre-wrap">
+                       {e.requirements || "—"}
+                    </p>
                     </td>
 
                     <td className="px-5 py-5 text-white/60">

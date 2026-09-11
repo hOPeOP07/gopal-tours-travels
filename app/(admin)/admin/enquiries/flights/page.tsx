@@ -27,6 +27,8 @@ export default async function FlightEnquiriesPage() {
               <th className="px-5 py-4">Route</th>
               <th className="px-5 py-4">Departure</th>
               <th className="px-5 py-4">Trip</th>
+              <th className="px-5 py-4">Class</th>
+              <th className="px-5 py-4">Special Requests</th>
               <th className="px-5 py-4">Received</th>
             </tr>
           </thead>
@@ -59,6 +61,16 @@ export default async function FlightEnquiriesPage() {
                       {item.travellers ?? 1} Traveller
                       {(item.travellers ?? 1) > 1 ? "s" : ""}
                     </p>
+                  </td>
+
+                  <td className="px-5 py-5">
+                      {item.travel_class || "—"}
+                  </td>
+
+                  <td className="px-5 py-5 max-w-[260px]">
+                     <p className="text-sm text-white/80 whitespace-pre-wrap">
+                      {item.special_requests || "—"}
+                     </p>
                   </td>
 
                   <td className="px-5 py-5">

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 export default async function Dashboard() {
@@ -6,6 +7,7 @@ export default async function Dashboard() {
     { data: hotelEnquiries },
     { data: flightEnquiries },
     { data: tours },
+    { data: hotels },
   ] = await Promise.all([
     supabase
       .from("tour_enquiries")
@@ -23,6 +25,7 @@ export default async function Dashboard() {
       .order("created_at", { ascending: false }),
 
     supabase.from("tours").select("*"),
+    supabase.from("hotels").select("*"),
   ]);
 
   const recent = [
@@ -48,8 +51,7 @@ export default async function Dashboard() {
     })),
   ]
     .sort(
-      (a, b) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime()
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     )
     .slice(0, 8);
 
@@ -58,6 +60,16 @@ export default async function Dashboard() {
     { label: "Hotel Enquiries", value: String(hotelEnquiries?.length ?? 0) },
     { label: "Flight Enquiries", value: String(flightEnquiries?.length ?? 0) },
     { label: "Active Tours", value: String(tours?.length ?? 0) },
+    { label: "Hotels", value: String(hotels?.length ?? 0) },
+  ];
+
+  const actions = [
+    { title: "Manage Tours", href: "/admin/tours" },
+    { title: "Manage Hotels", href: "/admin/hotels" },
+    { title: "Manage Offers", href: "/admin/offers" },
+    { title: "Tour Enquiries", href: "/admin/enquiries/tours" },
+    { title: "Hotel Enquiries", href: "/admin/enquiries/hotels" },
+    { title: "Settings", href: "/admin/settings" },
   ];
 
   return (
@@ -66,12 +78,13 @@ export default async function Dashboard() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#d8a15e]">
           Overview
         </p>
+
         <h2 className="mt-3 text-4xl font-medium tracking-[-0.03em]">
           Welcome back.
         </h2>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
         {stats.map((item) => (
           <div
             key={item.label}
@@ -80,6 +93,7 @@ export default async function Dashboard() {
             <p className="text-[9px] uppercase tracking-[0.2em] text-white/45">
               {item.label}
             </p>
+
             <h3 className="mt-3 text-5xl font-medium text-[#e3b878]">
               {item.value}
             </h3>
@@ -140,19 +154,15 @@ export default async function Dashboard() {
           </p>
 
           <div className="mt-6 space-y-3">
-            {[
-              "Manage Tours",
-              "Manage Offers",
-              "View Tour Enquiries",
-              "Settings",
-            ].map((item) => (
-              <button
-                key={item}
+            {actions.map((item) => (
+              <Link
+                key={item.title}
+                href={item.href}
                 className="flex w-full items-center justify-between border border-white/10 px-4 py-4 text-left text-sm transition hover:border-[#d59a55] hover:bg-[#d59a55]/10"
               >
-                {item}
+                {item.title}
                 <span>→</span>
-              </button>
+              </Link>
             ))}
           </div>
         </section>
